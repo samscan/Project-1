@@ -25,6 +25,7 @@ int main()
     while (true) {
         updateDriverSitting();
         updateReadyToDrive();
+        updateEngineStarted();
 
         }
     }
