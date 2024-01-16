@@ -24,6 +24,7 @@ int main()
 
     while (true) {
         updateDriverSitting();
+        updateReadyToDrive();
 
         }
     }
@@ -42,4 +43,4 @@ void outputsInit()
 {
     ignitionEnabled = OFF;
     engineStarted = OFF;
-}
+} 
