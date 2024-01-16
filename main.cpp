@@ -10,12 +10,13 @@ DigitalOut ignitionEnabled(LED1);
 DigitalOut engineStarted(LED1);
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
+bool driverSeatState = OFF;
+
 void inputsInit();
 void outputsInit();
 void updateDriverSitting();
-void updateReadyToDrive();
-void updateEngineStarted();
-void uartTask();
+//void updateReadyToDrive();
+//void updateEngineStarted();
 
 int main()
 {
@@ -24,11 +25,11 @@ int main()
 
     while (true) {
         updateDriverSitting();
-        updateReadyToDrive();
-        updateEngineStarted();
+        //updateReadyToDrive();
+        //updateEngineStarted();
 
         }
-    }
+    
 }
 
 void inputsInit()
@@ -45,3 +46,15 @@ void outputsInit()
     ignitionEnabled = OFF;
     engineStarted = OFF;
 } 
+
+void updateDriverSitting()
+{
+    if (!driverSeatState && driverSeat){
+        uartUsb.write("Welcome to enhanced alarm system model 218-W24.\r\n", 49);
+        driverSeatState = ON;
+    }
+
+    if (!driverSeat){
+        driverSeatState = OFF;
+    }
+}
