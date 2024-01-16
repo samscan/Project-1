@@ -2,8 +2,8 @@
 #include "arm_book_lib.h"
 
 DigitalIn driverSeat(D2);
-DigitalIn driverSeatBelt(D3);
-DigitalIn passengerSeat(D4);
+DigitalIn driverSeatBelt(D4);
+DigitalIn passengerSeat(D3);
 DigitalIn passengerSeatBelt(D5);
 DigitalIn ignition(D6);
 DigitalOut ignitionEnabled(LED1);
@@ -14,6 +14,7 @@ UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 bool driverSeatState = OFF;
 bool ignitionState = OFF;
 bool ignitionEnabledState = OFF;
+bool done = OFF;
 
 
 void inputsInit();
@@ -27,7 +28,7 @@ int main()
     inputsInit();
     outputsInit();
 
-    while (true) {
+    while (!done) {
         updateDriverSitting();
         updateReadyToDrive();
         updateEngineStarted();
@@ -67,12 +68,14 @@ void updateDriverSitting()
 
 void updateReadyToDrive()
 {
-    if(driverSeat && passengerSeat && driverSeatBelt && passengerSeatBelt && !ignitionEnabledState){
-        ignitionEnabled = ON;
-        ignitionEnabledState = ON;
-    }
-    else{
-        ignitionEnabled = OFF;
+    if (!ignitionState){
+        if(driverSeat && passengerSeat && driverSeatBelt && passengerSeatBelt){
+            ignitionEnabledState = ON;
+        }
+        else{
+            ignitionEnabledState = OFF;
+        }
+        ignitionEnabled = ignitionEnabledState;
     }
 }
 
@@ -80,7 +83,7 @@ void updateEngineStarted()
 {
     if (ignition){
         if (ignitionEnabled){
-            if (!ignitionState){
+            if (ignitionEnabledState){
                 uartUsb.write("Engine started.\r\n", 17);
                 engineStarted = ON;
                 ignitionEnabled = OFF;
@@ -91,7 +94,22 @@ void updateEngineStarted()
         else{
             buzzerPin.output();                                     
             buzzerPin = LOW; 
+            uartUsb.write("Ignition Inhibited.\r\n", 21);
+            if(!driverSeat){
+                uartUsb.write("Driver seat not occupied.\r\n", 27);
+            }
+            if(!passengerSeat){
+                uartUsb.write("Passenger seat not occupied.\r\n", 30);
+            }
+            if(!driverSeatBelt){
+                uartUsb.write("Driver seatbelt not fastened.\r\n", 31);
+            }
+            if(!passengerSeatBelt){
+                uartUsb.write("Passenger seatbelt not fastened.\r\n", 34);
+            }
+            
         }
+        done = ON;
     }
 
 }
